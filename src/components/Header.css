@@ -165,7 +165,9 @@ form button {
 .current-row-1 .current-temp {
     font-size: 60px;
 }
-
+.current-row-1 .current-weather {
+    display: none;
+}
     .current-data {
         flex-direction: column;
         gap: 2em;
