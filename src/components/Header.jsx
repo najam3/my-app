@@ -25,6 +25,7 @@ const initialWeather =
   useEffect(() => {
    getLocation().then(response => {
        setInitialLocation(`${response.city} ${response.country}`)
+       console.log(response);
    }) 
   }, []) 
 

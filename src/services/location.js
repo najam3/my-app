@@ -11,7 +11,7 @@
                 .then(response => response.json())
                 .then(data => {
                   
-                  let city = data.results[0].components.region;
+                  let city = data.results[0].components.city;
                   let country = data.results[0].components.country;
                   let newLoc = { ...locationInfo, city, country };
                   locationInfo = newLoc;
