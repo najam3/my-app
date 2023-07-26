@@ -15,6 +15,7 @@ const [intialLocationData, setInitialLocationData] = useState({});
 const [forecastData, setForecastData] = useState([]);
 const [inputVal, setInputVal] = useState("");
 const [currentForecastData, setCurrentForeCastData] = useState({});
+const [isloading, setIsLoading] = useState(true);
 const key = 'd23791587b394cce925160456230804'
 const foreCastUrl =
 `http://api.weatherapi.com/v1/forecast.json?key=${key}&q=${inputVal}&days=7`;
@@ -24,16 +25,14 @@ const initialWeather =
 
   useEffect(() => {
    getLocation().then(response => {
-       setInitialLocation(`${response.city} ${response.country}`)
-       console.log(response);
+       setInitialLocation(`${response.city} ${response.country}`);
+       setIsLoading(false);
    }) 
   }, []) 
-
 
   useEffect(() => {
     if (intialLocation) {
       getWeather(initialWeather).then(response => {
-     
          const time = response.location.localtime;
          const newDate = new Date(time).toDateString();
          const newTimeTaken = new Date(time).toLocaleTimeString();
@@ -100,7 +99,8 @@ const initialWeather =
                }
               });
               setForecastData(foreCast)
-      })
+              setIsLoading(false);
+            })
     }
   }, [intialLocation]);
 
@@ -108,7 +108,8 @@ const initialWeather =
 
 const getWeather = async(url) => {
       const forecastResp = await fetch(url);
-    const forecastData = await forecastResp.json();
+     const forecastData = await forecastResp.json();
+     setIsLoading(false);
      return forecastData;
   }
 
@@ -116,13 +117,7 @@ const getWeather = async(url) => {
 
   function getData() {
     getWeather(foreCastUrl).then(response => {
-      
-    
-  
-   
-
    const foreCast = response.forecast.forecastday.map(weekly => {
-   
          return {
              date: weekly.date,
              maxTemp: weekly.day.maxtemp_c, 
@@ -213,11 +208,13 @@ function handleSubmit(e) {
         </form>
         <div>
         {
-     
-     intialLocation ? (
+          
+          isloading ? 
+          <div style={{display:'flex', height:'100vh', alignItems:'center', justifyContent:'center'}}>
+            <p style={{color:'white'}}>...loading</p>
+          </div> : 
+          intialLocation ? (
        <div className='current-location'>
-      
-
        <div className='current-data'>
         <div className='current-left'>
           <span className='current-city'>{intialLocationData.cityName}, {intialLocationData.countryName}</span>
@@ -261,8 +258,6 @@ function handleSubmit(e) {
        </div>
      ) : (
         <div className='current-location' >
-         
-
         <div className='current-data'>
         <div className='current-left'>
           <span className='current-city'>{currentForecastData.cityName}, {currentForecastData.countryName}</span>
@@ -307,8 +302,6 @@ function handleSubmit(e) {
      )
    }
     </div>
-      
-         
     </div>
   )
 }

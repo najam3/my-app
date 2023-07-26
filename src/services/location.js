@@ -14,6 +14,7 @@
                   let city = data.results[0].components.city;
                   let country = data.results[0].components.country;
                   let newLoc = { ...locationInfo, city, country };
+                
                   locationInfo = newLoc;
                   resolve(locationInfo);
                 })
