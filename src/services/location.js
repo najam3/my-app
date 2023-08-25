@@ -6,6 +6,7 @@ const getLocation = () => {
         const lat = position.coords.latitude;
         const long = position.coords.longitude;
         const key = "c7fa55a8fc7e4436a6473c38834d4d58";
+        
         const api = `https://api.opencagedata.com/geocode/v1/json?q=${lat}+${long}&key=${key}`;
         fetch(api)
           .then(response => response.json())
