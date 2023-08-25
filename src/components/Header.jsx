@@ -15,7 +15,7 @@ const [intialLocationData, setInitialLocationData] = useState({});
 const [forecastData, setForecastData] = useState([]);
 const [inputVal, setInputVal] = useState("");
 const [currentForecastData, setCurrentForeCastData] = useState({});
-const [isloading, setIsLoading] = useState(true);
+
 const key = 'd23791587b394cce925160456230804'
 const foreCastUrl =
 `http://api.weatherapi.com/v1/forecast.json?key=${key}&q=${inputVal}&days=7`;
@@ -23,12 +23,22 @@ const initialWeather =
 `http://api.weatherapi.com/v1/forecast.json?key=${key}&q=${intialLocation}&days=7`;
 
 
-  useEffect(() => {
-   getLocation().then(response => {
-       setInitialLocation(`${response.city} ${response.country}`);
-       setIsLoading(false);
+
+useEffect(() => {
+
+  getLocation().then(response => {
+   
+    setInitialLocation(`${response.city} ${response.country}`);      
    }) 
+
   }, []) 
+
+  const getWeather = async(url) => {
+    const forecastResp = await fetch(url);
+   const forecastData = await forecastResp.json();
+   return forecastData;
+}
+
 
   useEffect(() => {
     if (intialLocation) {
@@ -99,19 +109,14 @@ const initialWeather =
                }
               });
               setForecastData(foreCast)
-              setIsLoading(false);
             })
     }
+
   }, [intialLocation]);
 
 
 
-const getWeather = async(url) => {
-      const forecastResp = await fetch(url);
-     const forecastData = await forecastResp.json();
-     setIsLoading(false);
-     return forecastData;
-  }
+
 
 
 
@@ -131,7 +136,7 @@ const getWeather = async(url) => {
          setForecastData(foreCast)
        const currentWeather = response.current;
        const currentTime = response.location.localtime;
- 
+           console.log(currentWeather)
        const time = new Date(currentTime).toLocaleTimeString();
        const date = new Date(currentTime).toDateString();
 
@@ -164,12 +169,6 @@ const getWeather = async(url) => {
            remainingMinutesFromSunset = 60 - remainingMinutesFromSunset;
          }
          
-         console.log(`Remaining time until sunrise: ${remainingHoursFromSunrise} hours, ${remainingMinutesFromSunrise} minutes`);
-         console.log(`Remaining time until sunset: ${remainingHoursFromSunset} hours, ${remainingMinutesFromSunset} minutes`);
-         
- 
-
-
           setCurrentForeCastData({
             cityName: response.location.name,
             countryName: response.location.country,
@@ -187,6 +186,7 @@ const getWeather = async(url) => {
             sunrise: `${remainingHoursFromSunrise} hours ${remainingMinutesFromSunrise} minutes`,  
             sunset: `${remainingHoursFromSunset} hours ${remainingMinutesFromSunset} minutes`  
           });
+       
          })
   }
 
@@ -196,111 +196,104 @@ function handleSubmit(e) {
     getData();
     setInitialLocation("");
     setInputVal('')
+    console.log('first')
 }
 
   return (
-    <div  className='weather-app'>
+    <div className='weather-app'>
         <form onSubmit={handleSubmit} action="">
-        <BiCurrentLocation style={{cursor: 'pointer'}} title='Current Location' size={30} onClick={() =>   getLocation().then(response => {
+        <BiCurrentLocation style={{cursor: 'pointer'}} title='Current Location' size={30} onClick={() =>  getLocation().then(response => {
         setInitialLocation(`${response.city} ${response.country}`)})}/>
        
         <input type='text' placeholder='Enter a City' onChange={e => setInputVal(e.target.value)} value={inputVal}/>
         </form>
         <div>
-        {
-          
-          isloading ? 
-          <div style={{display:'flex', height:'100vh', alignItems:'center', justifyContent:'center'}}>
-            <p style={{color:'white'}}>...loading</p>
-          </div> : 
-          intialLocation ? (
-       <div className='current-location'>
-       <div className='current-data'>
-        <div className='current-left'>
-          <span className='current-city'>{intialLocationData.cityName}, {intialLocationData.countryName}</span>
-          <span className='current-time'>{intialLocationData.time}</span>
-          <span className='current-date'>{intialLocationData.date}</span>
-        </div>
-       
-        <div className='current-center'>
-        <div className='current-row-1'>
-          
-        <img width={80} height={80} src={intialLocationData.icon} alt="" />
-        <span className='current-temp'>{intialLocationData.temp} &#8451;</span>
-        <span className='current-weather'>{intialLocationData.text}</span>
-        </div>
-        <div className='current-row-2'>
-          <div className='inner-row' style={{display: 'flex', flexDirection:'column', gap:'0.5em'}}>
-         <span>Feels like</span> 
-         <span className='inner-row-2'>{intialLocationData.feelsLike} &#8451;</span>
-          </div>
-          <div className='inner-row' style={{display: 'flex', flexDirection:'column', gap:'0.5em'}}>
-         <span>Windspeed</span> 
-         <span className='inner-row-2'> {intialLocationData.windSpeed} mph</span>
-          </div>
-          <div className='inner-row' style={{display: 'flex', flexDirection:'column', gap:'0.5em'}}>
-         <span>Humidity</span> 
-         <span className='inner-row-2'> {intialLocationData.humidity}</span>
-          </div>
-     
-        
-        </div>
-        </div>
-        <div className='current-end'>
-          <span className='sunrise'>{intialLocationData.isDay ? `Sunset in ${intialLocationData.sunset === 0 ? '' : intialLocationData.sunset}` : `Sunrise in ${intialLocationData.sunrise} `}</span>
-          <span style={{textAlign:'right' , color: 'red'}}>{intialLocationData.uv > 7 ? 'High UV risk' : intialLocationData.uv > 5   || intialLocationData.uv < 7 ? 'Moderate UV Risk' : 'No UV Risk'}</span>
-        <img className='current-right'
-         src={!intialLocationData.isDay ? lunar : sky} alt={intialLocationData.isDay ? 'Day' : 'Night'} />
-        </div>
-       </div>
-       <ForeCast forecastData={forecastData}/>  
-         
-       </div>
-     ) : (
-        <div className='current-location' >
+        { intialLocation ?
+        <div className='current-location'>
         <div className='current-data'>
-        <div className='current-left'>
-          <span className='current-city'>{currentForecastData.cityName}, {currentForecastData.countryName}</span>
-          <span className='current-time'>{currentForecastData.time}</span>
-          <span className='current-date'>{currentForecastData.date}</span>
-        </div>
-       
-        <div className='current-center'>
-        <div className='current-row-1'>
-        <img width={80} height={80} src={currentForecastData.icon} alt="" />
-        <span className='current-temp'>{currentForecastData.temp} &#8451;</span>
-        <span className='current-weather'>{currentForecastData.text}</span>
-        </div>
-        <div className='current-row-2'>
-          <div className='inner-row' style={{display: 'flex', flexDirection:'column', gap:'0.5em'}}>
-         <span>Feels like</span> 
-         <span className='inner-row-2'>{currentForecastData.feelsLike} &#8451;</span>
+          <div className='current-left'>
+            <span className='current-city'>{intialLocationData.cityName}, {intialLocationData.countryName}</span>
+            <span className='current-time'>{intialLocationData.time}</span>
+            <span className='current-date'>{intialLocationData.date}</span>
           </div>
-          <div className='inner-row' style={{display: 'flex', flexDirection:'column', gap:'0.5em'}}>
-         <span>Windspeed</span> 
-         <span className='inner-row-2'> {currentForecastData.windSpeed} mph</span>
+        
+          <div className='current-center'>
+          <div className='current-row-1'>
+            
+          <img width={80} height={80} src={intialLocationData.icon} alt="" />
+          <span className='current-temp'>{intialLocationData.temp} &#8451;</span>
+          <span className='current-weather'>{intialLocationData.text}</span>
           </div>
-          <div className='inner-row' style={{display: 'flex', flexDirection:'column', gap:'0.5em'}}>
-         <span>Humidity</span> 
-         <span className='inner-row-2'> {currentForecastData.humidity}</span>
+          <div className='current-row-2'>
+            <div className='inner-row' style={{display: 'flex', flexDirection:'column', gap:'0.5em'}}>
+          <span>Feels like</span> 
+          <span className='inner-row-2'>{intialLocationData.feelsLike} &#8451;</span>
+            </div>
+            <div className='inner-row' style={{display: 'flex', flexDirection:'column', gap:'0.5em'}}>
+          <span>Windspeed</span> 
+          <span className='inner-row-2'> {intialLocationData.windSpeed} mph</span>
+            </div>
+            <div className='inner-row' style={{display: 'flex', flexDirection:'column', gap:'0.5em'}}>
+          <span>Humidity</span> 
+          <span className='inner-row-2'> {intialLocationData.humidity}</span>
+            </div>
+      
+          
           </div>
-     
-         
+          </div>
+          <div className='current-end'>
+            <span className='sunrise'>{intialLocationData.isDay ? `Sunset in ${intialLocationData.sunset === 0 ? '' : intialLocationData.sunset}` : `Sunrise in ${intialLocationData.sunrise} `}</span>
+            <span style={{textAlign:'right' , color: 'red'}}>{intialLocationData.uv > 7 ? 'High UV risk' : intialLocationData.uv > 5   || intialLocationData.uv < 7 ? 'Moderate UV Risk' : 'No UV Risk'}</span>
+          <img className='current-right'
+          src={!intialLocationData.isDay ? lunar : sky} alt={intialLocationData.isDay ? 'Day' : 'Night'} />
+          </div>
         </div>
+        <ForeCast forecastData={forecastData}/>  
+          
+        </div> :  <div className='current-location'>
+        <div className='current-data'>
+          <div className='current-left'>
+            <span className='current-city'>{currentForecastData.cityName}, {currentForecastData.countryName}</span>
+            <span className='current-time'>{currentForecastData.time}</span>
+            <span className='current-date'>{currentForecastData.date}</span>
+          </div>
+        
+          <div className='current-center'>
+          <div className='current-row-1'>
+            
+          <img width={80} height={80} src={currentForecastData.icon} alt="" />
+          <span className='current-temp'>{currentForecastData.temp} &#8451;</span>
+          <span className='current-weather'>{currentForecastData.text}</span>
+          </div>
+          <div className='current-row-2'>
+            <div className='inner-row' style={{display: 'flex', flexDirection:'column', gap:'0.5em'}}>
+          <span>Feels like</span> 
+          <span className='inner-row-2'>{currentForecastData.feelsLike} &#8451;</span>
+            </div>
+            <div className='inner-row' style={{display: 'flex', flexDirection:'column', gap:'0.5em'}}>
+          <span>Windspeed</span> 
+          <span className='inner-row-2'> {currentForecastData.windSpeed} mph</span>
+            </div>
+            <div className='inner-row' style={{display: 'flex', flexDirection:'column', gap:'0.5em'}}>
+          <span>Humidity</span> 
+          <span className='inner-row-2'> {currentForecastData.humidity}</span>
+            </div>
+      
+          
+          </div>
+          </div>
+          <div className='current-end'>
+            <span className='sunrise'>{currentForecastData.isDay ? `Sunset in ${currentForecastData.sunset === 0 ? '' : intialLocationData.sunset}` : `Sunrise in ${intialLocationData.sunrise} `}</span>
+            <span style={{textAlign:'right' , color: 'red'}}>{currentForecastData.uv > 7 ? 'High UV risk' : currentForecastData.uv > 5   || intialLocationData.uv < 7 ? 'Moderate UV Risk' : 'No UV Risk'}</span>
+          <img className='current-right'
+          src={!currentForecastData.isDay ? lunar : sky} alt={currentForecastData.isDay ? 'Day' : 'Night'} />
+          </div>
         </div>
-        <div className='current-end'>
-        <span className='sunrise'>{!currentForecastData.isDay ? `Sunrise in ${currentForecastData.sunrise}` : `Sunset in ${currentForecastData.sunset}`}</span>
-        <span style={{textAlign:'right' , color: 'red'}}>{currentForecastData.uv > 7 ? 'High UV risk' : currentForecastData.uv > 5   || currentForecastData.uv < 7 ? 'Moderate UV Risk' : 'No UV Risk'}</span>
-        <img className='current-right'
-          src={!currentForecastData.isDay ? lunar : sky}
-          alt={currentForecastData.isDay ? 'Day' : 'Night'} />
+        <ForeCast forecastData={forecastData}/>  
+          
         </div>
-       </div>
-       <ForeCast forecastData={forecastData}/>  
-         
-       </div>
-     )
-   }
+        }
+
     </div>
     </div>
   )
@@ -308,7 +301,7 @@ function handleSubmit(e) {
 const ForeCast = ({forecastData}) => {
  
   SwiperCore.use([Navigation, Pagination]);
-
+  console.log(forecastData.length)
     const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
    
     return(
@@ -316,10 +309,9 @@ const ForeCast = ({forecastData}) => {
         }}>
           <Swiper 
           direction='horizontal' 
-          spaceBetween={1} 
           slidesPerView={3}
           navigation={true}
-          loop={true}
+      
           >
            {
           forecastData.map(item => (
