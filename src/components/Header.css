@@ -23,7 +23,7 @@ h1 {
     display: flex;
     flex-direction: column;
     background-position: center;
-    height: 100vh;
+    height: 105vh;
 }
 
     .forecast-data {
