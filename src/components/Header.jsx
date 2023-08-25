@@ -311,7 +311,7 @@ const ForeCast = ({forecastData}) => {
           direction='horizontal' 
           slidesPerView={3}
           navigation={true}
-      
+          spaceBetween={10}
           >
            {
           forecastData.map(item => (
