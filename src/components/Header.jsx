@@ -18,9 +18,9 @@ const [currentForecastData, setCurrentForeCastData] = useState({});
 
 const key = 'd23791587b394cce925160456230804'
 const foreCastUrl =
-`http://api.weatherapi.com/v1/forecast.json?key=${key}&q=${inputVal}&days=7`;
+`https://api.weatherapi.com/v1/forecast.json?key=${key}&q=${inputVal}&days=7`;
 const initialWeather = 
-`http://api.weatherapi.com/v1/forecast.json?key=${key}&q=${intialLocation}&days=7`;
+`https://api.weatherapi.com/v1/forecast.json?key=${key}&q=${intialLocation}&days=7`;
 
 
 
